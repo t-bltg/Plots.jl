@@ -333,37 +333,41 @@ _transform_ticks(ticks::AbstractArray{T}) where T <: Dates.TimeType = Dates.valu
 _transform_ticks(ticks::NTuple{2, Any}) = (_transform_ticks(ticks[1]), ticks[2])
 
 function get_minor_ticks(sp, axis, ticks)
-    axis[:minorticks] in (:none, nothing, false) && !axis[:minorgrid] && return nothing
+    axis[:minorticks] ∈ (:none, nothing, false) && !axis[:minorgrid] && return nothing
     ticks = ticks[1]
     length(ticks) < 2 && return nothing
 
     amin, amax = axis_limits(sp, axis[:letter])
     scale = axis[:scale]
-    # Add one phantom tick either side of the ticks to ensure minor ticks extend to the axis limits
-    if length(ticks) > 2
-        ratio = (ticks[3] - ticks[2])/(ticks[2] - ticks[1])
-    elseif scale ∈ (:none, :identity)
-        ratio = 1
-    else
-        return nothing
-    end
-    first_step = ticks[2] - ticks[1]
-    last_step = ticks[end] - ticks[end-1]
-    ticks =  [ticks[1] - first_step/ratio; ticks; ticks[end] + last_step*ratio]
+    log_scaled = scale ∈ _logScales
+    base = get(_logScaleBases, scale, nothing)
 
-    # Default to 9 intervals between major ticks for log10 scale and 5 intervals otherwise.
+    ratio = if length(ticks) > 2
+        (ticks[3] - ticks[2]) / (ticks[2] - ticks[1])
+    else
+        1
+    end
+    # add one phantom tick either side of the ticks to ensure minor ticks extend to the axis limits
+    if log_scaled
+        ticks = [ticks[1] / base; ticks; ticks[end] * base]
+        sub = ratio == 1 ? 1 : round(Int, log(base, ratio))
+    else
+        first_step = ticks[2] - ticks[1]
+        last_step = ticks[end] - ticks[end-1]
+        ticks = [ticks[1] - first_step / ratio; ticks; ticks[end] + last_step * ratio]
+        sub = nothing
+    end
+
+    # default to 9 intervals between major ticks for log10 scale and 5 intervals otherwise
     n_default = (scale == :log10) ? 9 : 5
     n = typeof(axis[:minorticks]) <: Integer && axis[:minorticks] > 1 ? axis[:minorticks] : n_default
-    is_log_scale = scale ∈ _logScales
-    base = get(_logScaleBases, scale, nothing)
-    exp = is_log_scale ? round(Int, log(base, ratio)) : nothing
 
     minorticks = typeof(ticks[1])[]
-    for (i, hi) in enumerate(ticks[2:end])
+    for (i, hi) ∈ enumerate(ticks[2:end])
         lo = ticks[i]
         if isfinite(lo) && isfinite(hi) && hi > lo
-            if is_log_scale
-                for e in 1:exp
+            if log_scaled
+                for e ∈ 1:sub
                     lo_ = lo * base^(e - 1)
                     hi_ = lo_ * base
                     step = (hi_ - lo_) / n
