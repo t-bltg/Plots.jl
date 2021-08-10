@@ -73,7 +73,6 @@ function txt(plt::Plot, fn::AbstractString)
 end
 txt(fn::AbstractString) = txt(current(), fn)
 
-
 # ----------------------------------------------------------------
 
 const _savemap = Dict(
@@ -93,7 +92,7 @@ const _extension_map = Dict("tikz" => "tex")
 
 function addExtension(fn::AbstractString, ext::AbstractString)
     oldfn, oldext = splitext(fn)
-    oldext = chop(oldext, head = 1, tail = 0)
+    oldext = chop(oldext; head=1, tail=0)
     if get(_extension_map, oldext, oldext) == ext
         return fn
     else
@@ -113,7 +112,7 @@ function savefig(plt::Plot, fn::AbstractString)
 
     # get the extension
     _, ext = splitext(fn)
-    ext = chop(ext, head = 1, tail = 0)
+    ext = chop(ext; head=1, tail=0)
     if isempty(ext)
         ext = defaultOutputFormat(plt)
     end
@@ -128,7 +127,6 @@ function savefig(plt::Plot, fn::AbstractString)
 end
 savefig(fn::AbstractString) = savefig(current(), fn)
 
-
 # ---------------------------------------------------------
 
 """
@@ -136,10 +134,10 @@ savefig(fn::AbstractString) = savefig(current(), fn)
 
 Display a plot using the backends' gui window
 """
-gui(plt::Plot = current()) = display(PlotsDisplay(), plt)
+gui(plt::Plot=current()) = display(PlotsDisplay(), plt)
 
 # IJulia only... inline display
-function inline(plt::Plot = current())
+function inline(plt::Plot=current())
     isijulia() || error("inline() is IJulia-only")
     Main.IJulia.clear_output(true)
     display(Main.IJulia.InlineDisplay(), plt)
@@ -158,8 +156,9 @@ end
 
 # ---------------------------------------------------------
 
-const _best_html_output_type =
-    KW(:pyplot => :png, :unicodeplots => :txt, :plotlyjs => :html, :plotly => :html)
+const _best_html_output_type = KW(
+    :pyplot => :png, :unicodeplots => :txt, :plotlyjs => :html, :plotly => :html
+)
 
 # a backup for html... passes to svg or png depending on the html_output_format arg
 function _show(io::IO, ::MIME"text/html", plt::Plot)
@@ -186,8 +185,8 @@ function _show(io::IO, ::MIME"text/html", plt::Plot)
 end
 
 # delegate showable to _show instead
-function Base.showable(m::M, plt::P) where {M <: MIME, P <: Plot}
-    return hasmethod(_show, Tuple{IO, M, P})
+function Base.showable(m::M, plt::P) where {M<:MIME,P<:Plot}
+    return hasmethod(_show, Tuple{IO,M,P})
 end
 
 function _display(plt::Plot)
@@ -224,7 +223,6 @@ Base.show(io::IO, m::MIME"application/prs.juno.plotpane+html", plt::Plot) =
 "Close all open gui windows of the current backend"
 closeall() = closeall(backend())
 
-
 # function html_output_format(fmt)
 #     if fmt == "png"
 #         @eval function Base.show(io::IO, ::MIME"text/html", plt::Plot)
@@ -240,7 +238,6 @@ closeall() = closeall(backend())
 # end
 #
 # html_output_format("svg")
-
 
 # ---------------------------------------------------------
 # Atom PlotPane

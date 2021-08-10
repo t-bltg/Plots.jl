@@ -1,7 +1,6 @@
 
 # https://github.com/Evizero/UnicodePlots.jl
 
-
 # don't warn on unsupported... there's just too many warnings!!
 warn_on_unsupported_args(::UnicodePlotsBackend, plotattributes::KW) = nothing
 
@@ -9,14 +8,13 @@ warn_on_unsupported_args(::UnicodePlotsBackend, plotattributes::KW) = nothing
 
 function _canvas_map()
     (
-        braille = UnicodePlots.BrailleCanvas,
-        ascii = UnicodePlots.AsciiCanvas,
-        block = UnicodePlots.BlockCanvas,
-        dot = UnicodePlots.DotCanvas,
-        density = UnicodePlots.DensityCanvas,
+        braille=UnicodePlots.BrailleCanvas,
+        ascii=UnicodePlots.AsciiCanvas,
+        block=UnicodePlots.BlockCanvas,
+        dot=UnicodePlots.DotCanvas,
+        density=UnicodePlots.DensityCanvas,
     )
 end
-
 
 # do all the magic here... build it all at once, since we need to know about all the series at the very beginning
 function rebuildUnicodePlot!(plt::Plot, width, height)
@@ -25,8 +23,8 @@ function rebuildUnicodePlot!(plt::Plot, width, height)
     for sp in plt.subplots
         xaxis = sp[:xaxis]
         yaxis = sp[:yaxis]
-        xlim =  axis_limits(sp, :x)
-        ylim =  axis_limits(sp, :y)
+        xlim = axis_limits(sp, :x)
+        ylim = axis_limits(sp, :y)
 
         # make vectors
         xlim = [xlim[1], xlim[2]]
@@ -49,13 +47,16 @@ function rebuildUnicodePlot!(plt::Plot, width, height)
         if length(sp.series_list) == 1
             series = sp.series_list[1]
             if series[:seriestype] == :spy
-                push!(plt.o, UnicodePlots.spy(
-                    series[:z].surf,
-                    width = width,
-                    height = height,
-                    title = sp[:title],
-                    canvas = canvas_type
-                ))
+                push!(
+                    plt.o,
+                    UnicodePlots.spy(
+                        series[:z].surf;
+                        width=width,
+                        height=height,
+                        title=sp[:title],
+                        canvas=canvas_type,
+                    ),
+                )
                 continue
             end
         end
@@ -65,13 +66,16 @@ function rebuildUnicodePlot!(plt::Plot, width, height)
         #     canvas_type = UnicodePlots.BarplotGraphics
         # end
 
-        o = UnicodePlots.Plot(x, y, canvas_type;
-            width = width,
-            height = height,
-            title = sp[:title],
-            xlim = xlim,
-            ylim = ylim,
-            border = isijulia() ? :ascii : :solid
+        o = UnicodePlots.Plot(
+            x,
+            y,
+            canvas_type;
+            width=width,
+            height=height,
+            title=sp[:title],
+            xlim=xlim,
+            ylim=ylim,
+            border=isijulia() ? :ascii : :solid,
         )
 
         # set the axis labels
@@ -88,22 +92,21 @@ function rebuildUnicodePlot!(plt::Plot, width, height)
     end
 end
 
-
 # add a single series
 function addUnicodeSeries!(o, plotattributes, addlegend::Bool, xlim, ylim)
     # get the function, or special handling for step/bar/hist
     st = plotattributes[:seriestype]
     if st == :histogram2d
         UnicodePlots.densityplot!(o, plotattributes[:x], plotattributes[:y])
-        return
+        return nothing
     end
 
     if st in (:path, :straightline)
         func = UnicodePlots.lineplot!
     elseif st == :scatter || plotattributes[:markershape] != :none
         func = UnicodePlots.scatterplot!
-    # elseif st == :bar
-    #     func = UnicodePlots.barplot!
+        # elseif st == :bar
+        #     func = UnicodePlots.barplot!
     elseif st == :shape
         func = UnicodePlots.lineplot!
     else
@@ -121,11 +124,15 @@ function addUnicodeSeries!(o, plotattributes, addlegend::Bool, xlim, ylim)
     label = addlegend ? plotattributes[:label] : ""
 
     # if we happen to pass in allowed color symbols, great... otherwise let UnicodePlots decide
-    color = plotattributes[:linecolor] in UnicodePlots.color_cycle ? plotattributes[:linecolor] : :auto
+    color =
+        plotattributes[:linecolor] in UnicodePlots.color_cycle ?
+        plotattributes[:linecolor] : :auto
 
     # add the series
-    x, y = RecipesPipeline.unzip(collect(Base.Iterators.filter(xy->isfinite(xy[1])&&isfinite(xy[2]), zip(x,y))))
-    func(o, x, y; color = color, name = label)
+    x, y = RecipesPipeline.unzip(
+        collect(Base.Iterators.filter(xy -> isfinite(xy[1]) && isfinite(xy[2]), zip(x, y)))
+    )
+    func(o, x, y; color=color, name=label)
 end
 
 # -------------------------------
@@ -150,7 +157,7 @@ function png(plt::AbstractPlot{UnicodePlotsBackend}, fn::AbstractString)
         run(`screencapture -R50,600,700,420 $fn`)
 
         # END HACK (phew)
-        return
+        return nothing
     end
 
     error("Can only savepng on osx with UnicodePlots (though even then I wouldn't do it)")
@@ -162,7 +169,7 @@ end
 
 function unicodeplots_rebuild(plt::Plot{UnicodePlotsBackend})
     w, h = plt[:size]
-    plt.attr[:color_palette] = [RGB(0,0,0)]
+    plt.attr[:color_palette] = [RGB(0, 0, 0)]
     rebuildUnicodePlot!(plt, div(w, 10), div(h, 20))
 end
 
@@ -171,7 +178,6 @@ function _show(io::IO, ::MIME"text/plain", plt::Plot{UnicodePlotsBackend})
     foreach(x -> show(io, x), plt.o)
     nothing
 end
-
 
 function _display(plt::Plot{UnicodePlotsBackend})
     unicodeplots_rebuild(plt)

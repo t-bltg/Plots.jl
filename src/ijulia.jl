@@ -1,14 +1,13 @@
 const use_local_dependencies = Ref(false)
 const use_local_plotlyjs = Ref(false)
 
-
 function _init_ijulia_plotting()
     # IJulia is more stable with local file
-    use_local_plotlyjs[] = plotly_local_file_path[] === nothing ? false : isfile(plotly_local_file_path[])
+    use_local_plotlyjs[] =
+        plotly_local_file_path[] === nothing ? false : isfile(plotly_local_file_path[])
 
     ENV["MPLBACKEND"] = "Agg"
 end
-
 
 """
 Add extra jupyter mimetypes to display_dict based on the plot backed.
@@ -21,20 +20,17 @@ _ijulia__extra_mime_info!(plt::Plot, out::Dict) = out
 
 function _ijulia__extra_mime_info!(plt::Plot{PlotlyJSBackend}, out::Dict)
     out["application/vnd.plotly.v1+json"] = Dict(
-        :data => plotly_series(plt),
-        :layout => plotly_layout(plt)
+        :data => plotly_series(plt), :layout => plotly_layout(plt)
     )
     out
 end
 
 function _ijulia__extra_mime_info!(plt::Plot{PlotlyBackend}, out::Dict)
     out["application/vnd.plotly.v1+json"] = Dict(
-        :data => plotly_series(plt),
-        :layout => plotly_layout(plt)
+        :data => plotly_series(plt), :layout => plotly_layout(plt)
     )
     out
 end
-
 
 function _ijulia_display_dict(plt::Plot)
     output_type = Symbol(plt.attr[:html_output_format])

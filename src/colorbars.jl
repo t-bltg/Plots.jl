@@ -1,5 +1,6 @@
 # These functions return an operator for use in `get_clims(::Seres, op)`
-process_clims(lims::Tuple{<:Number,<:Number}) = (zlims -> ifelse.(isfinite.(lims), lims, zlims)) ∘ ignorenan_extrema
+process_clims(lims::Tuple{<:Number,<:Number}) =
+    (zlims -> ifelse.(isfinite.(lims), lims, zlims)) ∘ ignorenan_extrema
 process_clims(s::Union{Symbol,Nothing,Missing}) = ignorenan_extrema
 # don't specialize on ::Function otherwise python functions won't work
 process_clims(f) = f
@@ -33,10 +34,15 @@ values of the input.
 function get_clims(series::Series, op=ignorenan_extrema)
     zmin, zmax = Inf, -Inf
     z_colored_series = (:contour, :contour3d, :heatmap, :histogram2d, :surface, :hexbin)
-    for vals in (series[:seriestype] in z_colored_series ? series[:z] : nothing, series[:line_z], series[:marker_z], series[:fill_z])
-        if (typeof(vals) <: AbstractSurface) && (eltype(vals.surf) <: Union{Missing, Real})
+    for vals in (
+        series[:seriestype] in z_colored_series ? series[:z] : nothing,
+        series[:line_z],
+        series[:marker_z],
+        series[:fill_z],
+    )
+        if (typeof(vals) <: AbstractSurface) && (eltype(vals.surf) <: Union{Missing,Real})
             zmin, zmax = _update_clims(zmin, zmax, op(vals.surf)...)
-        elseif (vals !== nothing) && (eltype(vals) <: Union{Missing, Real})
+        elseif (vals !== nothing) && (eltype(vals) <: Union{Missing,Real})
             zmin, zmax = _update_clims(zmin, zmax, op(vals)...)
         end
     end
@@ -60,8 +66,8 @@ function colorbar_style(series::Series)
         cbar_fill
     elseif iscontour(series)
         cbar_lines
-    elseif series[:seriestype] ∈ (:heatmap,:surface) ||
-            any(series[z] !== nothing for z ∈ [:marker_z,:line_z,:fill_z])
+    elseif series[:seriestype] ∈ (:heatmap, :surface) ||
+           any(series[z] !== nothing for z in [:marker_z, :line_z, :fill_z])
         cbar_gradient
     else
         nothing
@@ -69,9 +75,10 @@ function colorbar_style(series::Series)
 end
 
 hascolorbar(series::Series) = colorbar_style(series) !== nothing
-hascolorbar(sp::Subplot) = sp[:colorbar] != :none && any(hascolorbar(s) for s in series_list(sp))
+hascolorbar(sp::Subplot) =
+    sp[:colorbar] != :none && any(hascolorbar(s) for s in series_list(sp))
 
-function get_colorbar_ticks(sp::Subplot; update = true)
+function get_colorbar_ticks(sp::Subplot; update=true)
     if update || !haskey(sp.attr, :colorbar_optimized_ticks)
         ticks = _transform_ticks(sp[:colorbar_ticks])
         cvals = sp[:colorbar_continuous_values]
@@ -79,8 +86,9 @@ function get_colorbar_ticks(sp::Subplot; update = true)
         clims = get_clims(sp)
         scale = sp[:colorbar_scale]
         formatter = sp[:colorbar_formatter]
-        sp.attr[:colorbar_optimized_ticks] =
-            get_ticks(ticks, cvals, dvals, clims, scale, formatter)
+        sp.attr[:colorbar_optimized_ticks] = get_ticks(
+            ticks, cvals, dvals, clims, scale, formatter
+        )
     end
     return sp.attr[:colorbar_optimized_ticks]
 end

@@ -8,7 +8,7 @@ function plotlybase_syncplot(plt::Plot)
     PlotlyBase.addtraces!(plt.o, traces...)
     layout = plotly_layout(plt)
     w, h = plt[:size]
-    PlotlyBase.relayout!(plt.o, layout, width = w, height = h)
+    PlotlyBase.relayout!(plt.o, layout; width=w, height=h)
     return plt.o
 end
 
@@ -19,5 +19,5 @@ for (mime, fmt) in (
     "image/eps" => "eps",
 )
     @eval _show(io::IO, ::MIME{Symbol($mime)}, plt::Plot{PlotlyBackend}) =
-        PlotlyBase.savefig(io, plotlybase_syncplot(plt), format = $fmt)
+        PlotlyBase.savefig(io, plotlybase_syncplot(plt); format=$fmt)
 end

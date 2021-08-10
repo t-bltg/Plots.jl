@@ -13,7 +13,7 @@ function plotlyjs_syncplot(plt::Plot{PlotlyJSBackend})
     PlotlyJS.addtraces!(plt.o, traces...)
     layout = plotly_layout(plt)
     w, h = plt[:size]
-    PlotlyJS.relayout!(plt.o, layout, width = w, height = h)
+    PlotlyJS.relayout!(plt.o, layout; width=w, height=h)
     return plt.o
 end
 
@@ -21,20 +21,23 @@ end
 
 for (mime, fmt) in (
     "application/pdf" => "pdf",
-    "image/png"       => "png",
-    "image/svg+xml"   => "svg",
-    "image/eps"       => "eps",
+    "image/png" => "png",
+    "image/svg+xml" => "svg",
+    "image/eps" => "eps",
 )
-    @eval _show(io::IO, ::MIME{Symbol($mime)}, plt::Plot{PlotlyJSBackend}) = PlotlyJS.savefig(io, plotlyjs_syncplot(plt), format = $fmt)
+    @eval _show(io::IO, ::MIME{Symbol($mime)}, plt::Plot{PlotlyJSBackend}) =
+        PlotlyJS.savefig(io, plotlyjs_syncplot(plt); format=$fmt)
 end
 
 # Use the Plotly implementation for json and html:
-_show(io::IO, mime::MIME"application/vnd.plotly.v1+json", plt::Plot{PlotlyJSBackend}) = plotly_show_js(io, plt)
+_show(io::IO, mime::MIME"application/vnd.plotly.v1+json", plt::Plot{PlotlyJSBackend}) =
+    plotly_show_js(io, plt)
 
 html_head(plt::Plot{PlotlyJSBackend}) = plotly_html_head(plt)
 html_body(plt::Plot{PlotlyJSBackend}) = plotly_html_body(plt)
 
-_show(io::IO, ::MIME"text/html", plt::Plot{PlotlyJSBackend}) = write(io, embeddable_html(plt))
+_show(io::IO, ::MIME"text/html", plt::Plot{PlotlyJSBackend}) =
+    write(io, embeddable_html(plt))
 
 _display(plt::Plot{PlotlyJSBackend}) = display(plotlyjs_syncplot(plt))
 

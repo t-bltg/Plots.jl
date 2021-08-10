@@ -27,7 +27,7 @@ function _theme(s::Symbol, defaults::AKW; kw...)
 
     # Set the theme's defaults
     default(; defaults..., kw...)
-    return
+    return nothing
 end
 
 @deprecate set_theme(s) theme(s)
@@ -35,9 +35,7 @@ end
 @userplot ShowTheme
 
 _color_functions = KW(
-    :protanopic => protanopic,
-    :deuteranopic => deuteranopic,
-    :tritanopic => tritanopic,
+    :protanopic => protanopic, :deuteranopic => deuteranopic, :tritanopic => tritanopic
 )
 _get_showtheme_args(thm::Symbol) = thm, identity
 _get_showtheme_args(thm::Symbol, func::Symbol) = thm, get(_color_functions, func, identity)
@@ -102,7 +100,7 @@ _get_showtheme_args(thm::Symbol, func::Symbol) = thm, get(_color_functions, func
 
     f(r) = sin(r) / r
     _norm(x, y) = norm([x, y])
-    x = y = range(-3π, stop = 3π, length = 30)
+    x = y = range(-3π; stop=3π, length=30)
     z = f.(_norm.(x, y'))
     wi = 2:3:30
 
@@ -110,8 +108,8 @@ _get_showtheme_args(thm::Symbol, func::Symbol) = thm, get(_color_functions, func
         subplot := 4
         seriestype := :heatmap
         seriescolor := colorgradient
-        xticks := (-2π:2π:2π, string.(-2:2:2, "π"))
-        yticks := (-2π:2π:2π, string.(-2:2:2, "π"))
+        xticks := ((-2π):(2π):(2π), string.(-2:2:2, "π"))
+        yticks := ((-2π):(2π):(2π), string.(-2:2:2, "π"))
         x, y, z
     end
 
@@ -119,13 +117,13 @@ _get_showtheme_args(thm::Symbol, func::Symbol) = thm, get(_color_functions, func
         subplot := 5
         seriestype := :surface
         seriescolor := colorgradient
-        xticks := (-2π:2π:2π, string.(-2:2:2, "π"))
-        yticks := (-2π:2π:2π, string.(-2:2:2, "π"))
+        xticks := ((-2π):(2π):(2π), string.(-2:2:2, "π"))
+        yticks := ((-2π):(2π):(2π), string.(-2:2:2, "π"))
         x, y, z
     end
 
     n = 100
-    ts = range(0, stop = 10π, length = n)
+    ts = range(0; stop=10π, length=n)
     x = (0.1ts) .* cos.(ts)
     y = (0.1ts) .* sin.(ts)
     z = 1:n
@@ -137,5 +135,4 @@ _get_showtheme_args(thm::Symbol, func::Symbol) = thm, get(_color_functions, func
         line_z := z
         x, y, z
     end
-
 end
