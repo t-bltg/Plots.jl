@@ -124,9 +124,15 @@ function addUnicodeSeries!(o, plotattributes, addlegend::Bool, xlim, ylim)
     label = addlegend ? plotattributes[:label] : ""
 
     # if we happen to pass in allowed color symbols, great... otherwise let UnicodePlots decide
-    color =
-        plotattributes[:linecolor] in UnicodePlots.color_cycle ?
-        plotattributes[:linecolor] : :auto
+    lc = convert(ARGB32, plotattributes[:linecolor])
+    sym = Symbol(
+        get(
+            Dict(v => k for (k, v) in Colors.color_names),
+            map(Int, (red(lc).i, green(lc).i, blue(lc).i)),
+            nothing,
+        ),
+    )
+    color = sym in UnicodePlots.color_cycle ? sym : :auto
 
     # add the series
     x, y = RecipesPipeline.unzip(
