@@ -847,7 +847,14 @@ add_axes_aliases(:ticks, :tick)
 add_axes_aliases(:rotation, :rot, :r)
 add_axes_aliases(:guidefontsize, :labelfontsize)
 add_axes_aliases(:gridalpha, :ga, :galpha, :gα, :gridopacity, :gopacity)
-add_axes_aliases(:gridstyle, :grid_style, :gridlinestyle, :grid_linestyle, :grid_ls, :gridls)
+add_axes_aliases(
+    :gridstyle,
+    :grid_style,
+    :gridlinestyle,
+    :grid_linestyle,
+    :grid_ls,
+    :gridls,
+)
 add_axes_aliases(
     :foreground_color_grid,
     :fg_grid,
@@ -872,7 +879,14 @@ add_axes_aliases(
     :fg_colour_minor_grid,
     :minorgridcolor,
 )
-add_axes_aliases(:gridlinewidth, :gridwidth, :grid_linewidth, :grid_width, :gridlw, :grid_lw)
+add_axes_aliases(
+    :gridlinewidth,
+    :gridwidth,
+    :grid_linewidth,
+    :grid_width,
+    :gridlw,
+    :grid_lw,
+)
 add_axes_aliases(
     :minorgridstyle,
     :minorgrid_style,
@@ -1569,7 +1583,8 @@ function warn_on_unsupported_args(pkg::AbstractBackend, plotattributes)
         end
     end
 
-    if !isempty(_to_warn) && get(plotattributes, :warn_on_unsupported, _plot_defaults[:warn_on_unsupported])
+    if !isempty(_to_warn) &&
+       get(plotattributes, :warn_on_unsupported, _plot_defaults[:warn_on_unsupported])
         for k in sort(collect(_to_warn))
             push!(already_warned, k)
             @warn(
