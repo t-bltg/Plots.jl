@@ -113,6 +113,8 @@ function addUnicodeSeries!(
         )
     elseif st == :spy
         return UnicodePlots.spy(series[:z].surf; kw...)
+    elseif st == :image
+        return UnicodePlots.imshow(series[:z].surf; kw...)
     end
 
     series_kw = (;)

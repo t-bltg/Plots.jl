@@ -936,6 +936,7 @@ const _unicodeplots_seriestype = [
     :shape,
     :histogram2d,
     :heatmap,
+    :image,
     :spy,
 ]
 const _unicodeplots_style = [:auto, :solid]
