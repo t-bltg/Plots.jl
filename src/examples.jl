@@ -1286,7 +1286,6 @@ _backend_skips = Dict(
     :inspectdr => [4, 6, 10, 22, 24, 28, 30, 38, 43, 45, 47, 48, 49, 50, 51, 55, 56],
     :unicodeplots => [
         5,  # limits issue
-        6,  # embedded images unsupported
         16,  # nested layout unsupported
         21,  # custom markers unsupported
         22,  # contours unsupported
@@ -1302,7 +1301,7 @@ _backend_skips = Dict(
         47,  # mesh3D unsupported
         49,  # polar heatmap
         50,  # 3D surface unsupported
-        51,  # embedded images unsupported
+        51,  # drawing on top of image unsupported
         52,  # 3D quiver unsupported
         55,  # 3D unsupported
         56,  # barplots
